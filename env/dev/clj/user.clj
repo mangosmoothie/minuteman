@@ -7,9 +7,13 @@
    [expound.alpha :as expound]
    [mount.core :as mount]
    [minuteman.core :refer [start-app]]
+   [minuteman.middleware.formats :as formats]
+   [muuntaja.core :as m]
    [minuteman.db.core]
    [conman.core :as conman]
-   [luminus-migrations.core :as migrations]))
+   [luminus-migrations.core :as migrations]
+   [minuteman.handler :refer [app]]
+   [ring.mock.request :refer [request]]))
 
 (alter-var-root #'s/*explain-out* (constantly expound/printer))
 
@@ -60,4 +64,8 @@
   [name]
   (migrations/create name (select-keys env [:database-url])))
 
+(defn parse-json [body]
+  (m/decode formats/instance "application/json" body))
+
+(defn get-instances [] (-> ((app) (request :get "/es-instances")) :body parse-json))
 

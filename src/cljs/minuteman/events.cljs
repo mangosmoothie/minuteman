@@ -46,13 +46,13 @@
 (rf/reg-event-fx
  :page/init-home
  (fn [_ _]
-   {:dispatch [:fetch-docs]}))
+   {:dispatch [:fetch-es-instances]}))
 
 (rf/reg-event-fx
  :fetch-es-instances
  (fn [_ _]
    {:http-xhrio {:method          :get
-                 :uri             "/es-instances"
+                 :uri             "/api/es-instances"
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:set-es-instances]
                  :on-fail         [:common/set-error
@@ -60,14 +60,14 @@
 
 (rf/reg-event-db
  :set-es-instances
- (fn [db [_ es-instances]]
-   (assoc db :es-instances es-instances)))
+ (fn [db [_ {es-instances :data}]]
+   (assoc db :es-instances (map #(assoc % :label (:name %)) es-instances))))
 
 (rf/reg-event-fx
  :fetch-es-indices
  (fn [_ _]
    {:http-xhrio {:method          :get
-                 :uri             "/es-indices"
+                 :uri             "/api/es-indices"
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:set-es-indices]
                  :on-fail         [:common/set-error
@@ -83,7 +83,7 @@
  (fn [{:keys [db]} [_ es-index-id]]
    {:db         (assoc db :es-index-metrics-loading true)
     :http-xhrio {:method          :get
-                 :uri             (str "/es-index-metrics/" es-index-id)
+                 :uri             (str "/api/es-indices/" es-index-id)
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:set-es-index-metrics]
                  :on-fail         [:common/set-error
@@ -101,7 +101,7 @@
  (fn [{:keys [db]} [_ es-index-id es-index-watch]]
    {:db         (assoc db :es-index-metrics-loading true)
     :http-xhrio {:method          :put
-                 :uri             (str "/es-indices/" es-index-id
+                 :uri             (str "/api/es-indices/" es-index-id
                                        (if es-index-watch "/watch" "/unwatch"))
                  :response-format (ajax/raw-response-format)
                  :on-success      [:set-es-index-metrics]
@@ -112,10 +112,10 @@
  :create-es-instance
  (fn [_ [_ es-instance]]
    {:http-xhrio {:method          :post
-                 :uri             "/es-instance"
+                 :uri             "/api/es-instances"
                  :format          (ajax/json-request-format)
                  :response-format (ajax/raw-response-format)
-                 :body            es-instance
+                 :params          es-instance
                  :on-success      [:fetch-es-instances]
                  :on-fail         [:common/set-error
                                    "unable to create es instance"]}}))

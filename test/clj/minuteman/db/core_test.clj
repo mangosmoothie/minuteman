@@ -3,7 +3,7 @@
    [minuteman.db.core :refer [*db*] :as db]
    [java-time.pre-java8]
    [luminus-migrations.core :as migrations]
-   [clojure.test :refer :all]
+   [clojure.test :refer [use-fixtures is deftest]]
    [next.jdbc :as jdbc]
    [minuteman.config :refer [env]]
    [mount.core :as mount]))
@@ -27,7 +27,7 @@
                :email      "sam.smith@example.com"
                :pass       "pass"}
               {})))
-    (is (= {:id         "2"
+    (is (= {:id         "1"
             :first_name "Sam"
             :last_name  "Smith"
             :email      "sam.smith@example.com"

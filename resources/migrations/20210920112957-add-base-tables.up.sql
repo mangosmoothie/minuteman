@@ -17,7 +17,7 @@ CREATE TABLE es_instance (
 CREATE TABLE es_index (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
-  watching BOOLEAN NOT NULL DEFAULT VALUE FALSE,
+  watching BOOLEAN NOT NULL DEFAULT FALSE,
   es_instance_id BIGINT NOT NULL,
   FOREIGN KEY (es_instance_id) REFERENCES es_instance(id));
 
@@ -29,7 +29,7 @@ CREATE TABLE es_index_state (
   docs_count BIGINT,
   docs_deleted BIGINT,
   store_size VARCHAR(20),
-  created TIMESTAMP NOT NULL DEFAULT VALUE CURRENT_TIMESTAMP,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (es_index_id) REFERENCES es_index(id));
 
 CREATE TABLE es_load_monitor (
