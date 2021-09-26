@@ -26,7 +26,7 @@
   :start
   (http/start
     (-> env
-        (update :io-threads #(or % (* 2 (.availableProcessors (Runtime/getRuntime))))) 
+        (update :io-threads #(or % (* 2 (.availableProcessors (Runtime/getRuntime)))))
         (assoc  :handler (handler/app))
         (update :port #(or (-> env :options :port) %))
         (select-keys [:handler :host :port])))
@@ -75,4 +75,4 @@
       (System/exit 0))
     :else
     (start-app args)))
-  
+

@@ -75,7 +75,7 @@
     (let [es-instance-id (get-es-instance-id)
           response (route-handler
                     (request :post "/api/es-indices"
-                             (assoc test-es-index :es_instance_id es-instance-id)))]
+                             (assoc test-es-index :es-instance-id es-instance-id)))]
       (is (created? response))))
 
   (testing "get es-indices route"

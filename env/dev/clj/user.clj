@@ -68,4 +68,3 @@
   (m/decode formats/instance "application/json" body))
 
 (defn get-instances [] (-> ((app) (request :get "/es-instances")) :body parse-json))
-

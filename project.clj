@@ -1,7 +1,9 @@
 (defproject minuteman "0.1.0"
   :description "monitor your elasticsearch indices by the minute"
   :url "http://github.com/mangosmoothie/minuteman"
-  :dependencies [[ch.qos.logback/logback-classic "1.2.5"]
+  :dependencies [[camel-snake-kebab "0.4.2"]
+                 [ch.qos.logback/logback-classic "1.2.5"]
+                 [clj-http "3.12.3"]
                  [cljs-ajax "0.8.3"]
                  [clojure.java-time "0.3.3"]
                  [com.cognitect/transit-clj "1.0.324"]
@@ -73,6 +75,7 @@
                   :source-paths ["env/dev/clj"  "env/dev/cljs" "test/cljs" ]
                   :resource-paths ["env/dev/resources"]
                   :cloverage {:ns-exclude-regex [#"^user$"
+                                                 #"^datagen$"
                                                  #"^minuteman.nrepl$"
                                                  #"^minuteman.env$"]}
                   :repl-options {:init-ns user
