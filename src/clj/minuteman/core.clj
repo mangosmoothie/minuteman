@@ -1,13 +1,16 @@
 (ns minuteman.core
   (:require
-    [minuteman.handler :as handler]
-    [minuteman.nrepl :as nrepl]
-    [luminus.http-server :as http]
-    [luminus-migrations.core :as migrations]
-    [minuteman.config :refer [env]]
+    [chime.core :as chime]
     [clojure.tools.cli :refer [parse-opts]]
     [clojure.tools.logging :as log]
+    [luminus-migrations.core :as migrations]
+    [luminus.http-server :as http]
+    [minuteman.config :refer [env]]
+    [minuteman.elasticsearch.core :refer [refresh-all-instances]]
+    [minuteman.handler :as handler]
+    [minuteman.nrepl :as nrepl]
     [mount.core :as mount])
+  (:import [java.time Instant Duration])
   (:gen-class))
 
 ;; log uncaught exceptions in threads
@@ -42,6 +45,13 @@
   (when repl-server
     (nrepl/stop repl-server)))
 
+(mount/defstate ^{:on-reload :noop} index-watcher
+  :start
+  (chime/chime-at
+   (chime/periodic-seq (Instant/now) (Duration/ofSeconds 60))
+   (fn [_] (refresh-all-instances)))
+  :stop
+  (.close index-watcher))
 
 (defn stop-app []
   (doseq [component (:stopped (mount/stop))]
@@ -58,8 +68,8 @@
 
 (defn -main [& args]
   (-> args
-                            (parse-opts cli-options)
-                            (mount/start-with-args #'minuteman.config/env))
+      (parse-opts cli-options)
+      (mount/start-with-args #'minuteman.config/env))
   (cond
     (nil? (:database-url env))
     (do

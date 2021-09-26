@@ -4,9 +4,10 @@
    [luminus-migrations.core :as migrations]
    [minuteman.config :refer [env]]
    [minuteman.db.core :as db]
+   [minuteman.elasticsearch.core :refer [refresh-instances]]
    [minuteman.handler :refer [app]]
-   [minuteman.middleware]
    [minuteman.middleware.formats :as formats]
+   [minuteman.middleware]
    [minuteman.routes.api :refer [api-routes]]
    [mount.core :as mount]
    [muuntaja.core :as m]
@@ -60,8 +61,9 @@
       (is (not-found? response))))
 
   (testing "create es-instance route"
-    (let [response (route-handler
-                    (request :post "/api/es-instances" test-es-instance))]
+    (let [response (with-redefs [refresh-instances (constantly nil)]
+                     (route-handler
+                      (request :post "/api/es-instances" test-es-instance)))]
       (is (created? response))))
 
   (testing "get es-instances route"

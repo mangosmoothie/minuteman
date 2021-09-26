@@ -14,6 +14,7 @@
                  [day8.re-frame/http-fx "0.2.3"]
                  [expound "0.8.9"]
                  [funcool/struct "1.4.0"]
+                 [jarohen/chime "0.3.3"]
                  [json-html "0.4.7"]
                  [luminus-migrations "0.7.1"]
                  [luminus-transit "0.1.2"]

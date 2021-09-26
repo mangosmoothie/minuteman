@@ -1,6 +1,9 @@
 (ns minuteman.routes.api
   (:require
+   [camel-snake-kebab.core :refer [->snake_case_keyword]]
+   [camel-snake-kebab.extras :refer [transform-keys]]
    [minuteman.db.core :as db]
+   [minuteman.elasticsearch.core :refer [refresh-instances]]
    [minuteman.middleware :as middleware]
    [ring.util.http-response :as response]))
 
@@ -15,14 +18,16 @@
                              (let [id (-> (merge {:headers nil} params)
                                           db/create-es-instance!
                                           first :id)]
+                               (refresh-instances [(assoc params :id id)])
                                (response/created
                                 (str "/api/es-instances/" id))))}]
 
    ["/es-indices" {:get (fn [_] (response/ok {:data (db/get-es-indices)}))
                    :post (fn [{params :params}]
-                           (let [id (-> params
-                                        db/create-es-index!
-                                        first :id)]
+                           (let [id (->> params
+                                         (transform-keys ->snake_case_keyword)
+                                         db/create-es-index!
+                                         first :id)]
                              (response/created (str "/api/es-instances/" id))))}]
 
    ["/es-indices/:id/:watch" {:put (fn [{{:keys [watch] :as params} :path-params}]

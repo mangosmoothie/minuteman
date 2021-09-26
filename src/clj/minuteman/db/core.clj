@@ -1,6 +1,6 @@
 (ns minuteman.db.core
   (:require
-    [camel-snake-kebab.core :refer [->kebab-case-keyword]]
+    [camel-snake-kebab.core :refer [->kebab-case-keyword ->snake_case_keyword]]
     [camel-snake-kebab.extras :refer [transform-keys]]
     [conman.core :as conman]
     [hugsql.adapter]
