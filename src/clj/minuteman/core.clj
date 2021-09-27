@@ -48,7 +48,7 @@
 (mount/defstate ^{:on-reload :noop} index-watcher
   :start
   (chime/chime-at
-   (chime/periodic-seq (Instant/now) (Duration/ofSeconds 60))
+   (chime/periodic-seq (Instant/now) (Duration/ofSeconds 10))
    (fn [_] (refresh-all-instances)))
   :stop
   (.close index-watcher))

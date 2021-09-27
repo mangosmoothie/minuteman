@@ -123,6 +123,7 @@
 (rf/reg-event-fx
  :create-es-instance-success
  (fn [_ [_ response]]
+   (js/console.log response)
    {:fx [[:dispatch [:set-current-es-instance response]]
          [:dispatch [:fetch-es-instances]]
          [:dispatch [:fetch-es-indices]]]}))
@@ -133,7 +134,7 @@
    {:http-xhrio {:method          :post
                  :uri             "/api/es-instances"
                  :format          (ajax/json-request-format)
-                 :response-format (ajax/raw-response-format)
+                 :response-format (ajax/json-response-format {:keywords? true})
                  :params          es-instance
                  :on-success      [:create-es-instance-success]
                  :on-fail         [:common/set-error
