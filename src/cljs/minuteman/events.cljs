@@ -46,7 +46,8 @@
 (rf/reg-event-fx
  :page/init-home
  (fn [_ _]
-   {:dispatch [:fetch-es-instances]}))
+   {:fx [[:dispatch [:fetch-es-instances]]
+         [:dispatch [:fetch-es-indices]]]}))
 
 (rf/reg-event-fx
  :fetch-es-instances
@@ -64,6 +65,17 @@
    (assoc db :es-instances (map #(assoc % :label (:name %)) es-instances))))
 
 (rf/reg-event-fx
+ :select-es-instance-id
+ (fn [{db :db} [_ id]]
+   {:dispatch [:set-current-es-instance (first (filter #(= id (:id %))
+                                                       (:es-instances db)))]}))
+
+(rf/reg-event-db
+ :set-current-es-instance
+ (fn [db [_ instance]]
+   (assoc db :current-es-instance instance)))
+
+(rf/reg-event-fx
  :fetch-es-indices
  (fn [_ _]
    {:http-xhrio {:method          :get
@@ -75,13 +87,13 @@
 
 (rf/reg-event-db
  :set-es-indices
- (fn [db [_ es-indices]]
+ (fn [db [_ {es-indices :data}]]
    (assoc db :es-indices es-indices)))
 
 (rf/reg-event-fx
  :fetch-es-index-metrics
  (fn [{:keys [db]} [_ es-index-id]]
-   {:db         (assoc db :es-index-metrics-loading true)
+   {:db (assoc db :es-index-metrics-loading true)
     :http-xhrio {:method          :get
                  :uri             (str "/api/es-indices/" es-index-id)
                  :response-format (ajax/json-response-format {:keywords? true})
@@ -99,7 +111,7 @@
 (rf/reg-event-fx
  :set-es-index-watch
  (fn [{:keys [db]} [_ es-index-id es-index-watch]]
-   {:db         (assoc db :es-index-metrics-loading true)
+   {:db (assoc db :es-index-metrics-loading true)
     :http-xhrio {:method          :put
                  :uri             (str "/api/es-indices/" es-index-id
                                        (if es-index-watch "/watch" "/unwatch"))
@@ -109,6 +121,13 @@
                                    "failed to update watch on index"]}}))
 
 (rf/reg-event-fx
+ :create-es-instance-success
+ (fn [_ [_ response]]
+   {:fx [[:dispatch [:set-current-es-instance response]]
+         [:dispatch [:fetch-es-instances]]
+         [:dispatch [:fetch-es-indices]]]}))
+
+(rf/reg-event-fx
  :create-es-instance
  (fn [_ [_ es-instance]]
    {:http-xhrio {:method          :post
@@ -116,7 +135,7 @@
                  :format          (ajax/json-request-format)
                  :response-format (ajax/raw-response-format)
                  :params          es-instance
-                 :on-success      [:fetch-es-instances]
+                 :on-success      [:create-es-instance-success]
                  :on-fail         [:common/set-error
                                    "unable to create es instance"]}}))
 ;;subscriptions
@@ -159,6 +178,14 @@
    (:es-indices db)))
 
 (rf/reg-sub
+ :current-es-indices
+ :<- [:current-es-instance]
+ :<- [:es-indices]
+ (fn [[instance indices] _]
+   (js/console.log indices)
+   (filter #(= (:id instance) (:es-instance-id %)) indices)))
+
+(rf/reg-sub
  :es-index-states
  (fn [db _]
    (:es-index-states db)))
@@ -167,3 +194,8 @@
  :es-load-monitors
  (fn [db _]
    (:es-load-monitors db)))
+
+(rf/reg-sub
+ :current-es-instance
+ (fn [db _]
+   (:current-es-instance db)))

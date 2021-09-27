@@ -38,6 +38,4 @@
           deleted (filter #(= "DELETED" (:health %)) (vals result))]
       (is (seq deleted))
       (is (= 2 (count deleted)))
-      (is (= [2 3] (map :es-index-id deleted)))))
-
-  )
+      (is (= [2 3] (map :es-index-id deleted))))))

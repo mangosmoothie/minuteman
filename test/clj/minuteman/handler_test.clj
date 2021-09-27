@@ -73,6 +73,14 @@
       (is (seq data))
       (is (seq (filter #(= (:name test-es-instance) (:name %)) data)))))
 
+  (testing "get es-instance route"
+    (let [expected-id (get-es-instance-id)
+          url (str "/api/es-instances/" expected-id)
+          response ((app) (request :get url))
+          result (-> response :body parse-json :id)]
+      (is (ok? response))
+      (is (= expected-id result))))
+
   (testing "create es-index route"
     (let [es-instance-id (get-es-instance-id)
           response (route-handler

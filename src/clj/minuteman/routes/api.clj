@@ -20,7 +20,11 @@
                                           first :id)]
                                (refresh-instances [(assoc params :id id)])
                                (response/created
-                                (str "/api/es-instances/" id))))}]
+                                (str "/api/es-instances/" id)
+                                (db/get-es-instance {:id id}))))}]
+
+   ["/es-instances/:id" {:get (fn [{params :path-params}]
+                                (response/ok (db/get-es-instance params)))}]
 
    ["/es-indices" {:get (fn [_] (response/ok {:data (db/get-es-indices)}))
                    :post (fn [{params :params}]

@@ -20,6 +20,11 @@ WHERE id = :id
 DELETE FROM users
 WHERE id = :id
 
+-- :name delete-test-instances! :! :n
+-- :doc deletes test es instances
+delete from es_instance
+where name = 'test_name'
+
 -- :name create-es-instance! :insert :raw
 -- :doc create an es instance record
 insert into es_instance
@@ -30,6 +35,10 @@ values (:name, :url, :headers)
 -- :doc retrieves all es instances
 select * from es_instance
 
+-- :name get-es-instance :? :1
+-- :doc retrieves all es instances
+select * from es_instance where id = :id
+
 -- :name create-es-index! :insert :raw
 -- :doc create an es index record
 insert into es_index
@@ -37,8 +46,23 @@ insert into es_index
 values (:name, :es_instance_id)
 
 -- :name get-es-indices :? :*
--- :doc retrieves all es indices
-select * from es_index
+-- :doc retrieves all es indices with current states
+select idx.name
+     , idx.es_instance_id
+     , idx.id
+     , a.health
+     , a.docs_count
+     , a.docs_deleted
+     , a.store_size
+     , a.created as updated
+  from es_index idx
+     , es_index_state a
+     , (select es_index_id, max(created) as created
+          from es_index_state
+         group by es_index_id) b
+ where idx.id = a.es_index_id
+   and a.created = b.created
+   and a.es_index_id = b.es_index_id
 
 -- :name get-es-index :? :1
 -- :doc retrieves an es index

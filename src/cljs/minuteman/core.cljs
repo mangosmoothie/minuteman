@@ -12,7 +12,7 @@
     [reitit.core :as reitit]
     [reitit.frontend.easy :as rfe]
     [clojure.string :as string]
-    [re-com.core :refer [single-dropdown v-box h-box p label button input-text modal-panel title]]
+    [re-com.core :refer [single-dropdown v-box h-box button input-text modal-panel title label]]
     [re-com.util :refer [item-for-id]])
   (:import goog.History))
 
@@ -96,7 +96,8 @@
                    :style {:max-width 300}
                    :model selected-env-id
                    :placeholder "Select an Elasticsearch Environment"
-                   :on-change #(reset! selected-env-id %)
+                   :on-change #(do (reset! selected-env-id %)
+                                   (rf/dispatch [:select-es-instance-id %]))
                    :choices (or @es-instances [])]
                   [button
                    :label "Add New"
@@ -104,9 +105,54 @@
                    :on-click #(reset! show-create-dialog? true)]
                   [create-es-instance-modal show-create-dialog?]]])))
 
+(defn index-row [row column-order columns]
+  [h-box
+   :class "rc-div-table-row"
+   :children [[h-box
+               :gap "2px"
+               :children [(for [k column-order]
+                            ^{:key k} [label :label (k row) :width (:width (k columns))])]]]])
+
+(defn indices-table [current-es-indices]
+  (let [column-width "100px"
+        column-order [:name :health :docs-count :docs-deleted :store-size :updated]
+        columns {:name {:id :name :label "Index" :width column-width}
+                 :health {:id :health :label "Health" :width column-width}
+                 :docs-count {:id :docs-count :label "Docs" :width column-width}
+                 :docs-deleted {:id :docs-deleted :label "Deleted" :width column-width}
+                 :store-size {:id :store-size :label "Size" :width column-width}
+                 :updated {:id :updated :label "Updated" :width "250px"}}]
+    (fn []
+      [v-box
+       :class "rc-div-table"
+       :width "754px"
+       :children [[h-box
+                   :class "rc-div-table-header"
+                   :children [(for [c (map columns column-order)]
+                                ^{:key (:id c)} [label :label (:label c) :width (:width c)])]]
+                  (for [index @current-es-indices]
+                    ^{:key (:id index)} [index-row index column-order columns])]])))
+
+(defn display-environment []
+  (let [current-es-instance (rf/subscribe [:current-es-instance])
+        current-es-indices (rf/subscribe [:current-es-indices])]
+    (fn []
+      (when @current-es-instance
+        [v-box
+         :gap "10px"
+         :children [[label :label (str (:name @current-es-instance) ": " (:url @current-es-instance))]
+                    [indices-table current-es-indices]]]))))
+
+(defn environment-overview []
+  (fn []
+    [v-box
+     :gap "20px"
+     :children [[select-environment]
+                [display-environment]]]))
+
 (defn home-page []
   [:section.section>div.container>div.content
-   [select-environment]])
+   [environment-overview]])
 
 (defn page []
   (if-let [page @(rf/subscribe [:common/page])]
