@@ -1,4 +1,4 @@
-# minuteman
+# minute manager
 
 ## Prerequisites
 

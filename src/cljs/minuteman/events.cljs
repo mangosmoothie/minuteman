@@ -183,7 +183,6 @@
  :<- [:current-es-instance]
  :<- [:es-indices]
  (fn [[instance indices] _]
-   (js/console.log indices)
    (filter #(= (:id instance) (:es-instance-id %)) indices)))
 
 (rf/reg-sub
