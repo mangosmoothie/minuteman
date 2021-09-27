@@ -1,21 +1,26 @@
 # minuteman
 
-generated using Luminus version "4.19"
-
-FIXME
-
 ## Prerequisites
 
-You will need [Leiningen][1] 2.0 or above installed.
+- Java
+- Leiningen
+- Yarn
 
-[1]: https://github.com/technomancy/leiningen
+## Running the tests
 
-## Running
+lein cloverage
 
-To start a web server for the application, run:
+## Running the app
 
-    lein run 
+0. lein deps
+1. yarn install
+2. lein run migrate
+3. yarn run shadow-cljs watch app 
+4. lein run (or (user/start) from repl)
 
-## License
+## Deploying the app
 
-Copyright © 2021 FIXME
+0. lein uberjar
+1. export DATABASE_URL="jdbc:h2:./minuteman.db"
+2. lein migrate
+3. java -jar target/uberjar/minuteman.jar

@@ -81,21 +81,14 @@
       (is (ok? response))
       (is (= expected-id result))))
 
-  (testing "create es-index route"
-    (let [es-instance-id (get-es-instance-id)
-          response (route-handler
-                    (request :post "/api/es-indices"
-                             (assoc test-es-index :es-instance-id es-instance-id)))]
-      (is (created? response))))
-
   (testing "get es-indices route"
-    (let [response ((app) (request :get "/api/es-indices"))
-          data (-> response :body parse-json :data)]
-      (is (ok? response))
-      (is (seq data))))
+    (let [response ((app) (request :get "/api/es-indices"))]
+      (is (ok? response))))
 
   (testing "toggle es-index watch"
-    (let [es-index-id (-> (db/get-es-indices) first :id)
+    (let [es-index-id (-> (db/create-es-index!
+                           {:name "test_index" :es_instance_id (get-es-instance-id)})
+                          first :id)
           toggle-watch (fn [s]
                          (route-handler
                           (request :put (str "/api/es-indices/"

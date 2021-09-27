@@ -78,6 +78,9 @@
                   :cloverage {:ns-exclude-regex [#"^user$"
                                                  #"^datagen$"
                                                  #"^minuteman.nrepl$"
+                                                 #"^minuteman.core$"
+                                                 #"^minuteman.dev-middleware$"
+                                                 #"^minuteman.elasticsearch.client$"
                                                  #"^minuteman.env$"]}
                   :repl-options {:init-ns user
                                  :timeout 120000}
